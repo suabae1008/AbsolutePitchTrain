@@ -325,8 +325,6 @@ while run:
 
 pygame.quit()
 '''
-
-# %%
 import pygame
 from pygame import mixer
 import time
@@ -335,31 +333,32 @@ import threading
 import numpy
 
 # 사용자 모드 입력
-switch = int(input("CHOOSE MODE (CTRL-0 ETACTILE-1): "))
-switch = float(switch)
+exp_group = int(input("CHOOSE MODE (CTRL-0 ETACTILE-1): "))
+exp_group = float(exp_group)
 
 sound_mode = int(input("SOUND MODE (1=hold, 2=hold_max_1s, 3=fixed_1s): "))
 
 
 # 시리얼 포트 연결
-if switch == 1:
+if exp_group == 1:
     ser = serial.Serial('COM9', 9600, timeout=7)
     print("serial connected")
     ser.close()
     ser.open()
 
-
-# 음계-주파수 매핑
-notes_period = {
-    'C':95, 'Db':55, 'D':40, 'Eb':25, 'E':15,
-    'F':8, 'Gb':4, 'G':8, 'Ab':15, 'A':25, 'Bb':40, 'B':55
-}
-
+# 기본 세팅 ------------------------------------------------------------------------------
 # 음계 정의
 white_notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
                'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5']
 black_notes = ['Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4',
                'Db5', 'Eb5', 'Gb5', 'Ab5', 'Bb5']
+
+# 음계-주파수 매핑
+freq_map = {
+    'C':95, 'Db':55, 'D':40, 'Eb':25, 'E':15,
+    'F':8, 'Gb':4, 'G':8, 'Ab':15, 'A':25, 'Bb':40, 'B':55
+}
+
 
 # 실제 피아노 건반 순서 기준 키 매핑
 key_map = {
@@ -369,6 +368,7 @@ key_map = {
     '9': 'Eb5', 'o': 'E5', 'p': 'F5', '-': 'Gb5', '[': 'G5',
     '=': 'Ab5', ']': 'A5', '\\': 'Bb5', 'backspace': 'B5'
 }
+
 
 
 # 강조 상태
@@ -387,8 +387,8 @@ font = pygame.font.SysFont(None, 48)
 
 # 자극 전송 함수
 def send_period(key_note):
-    if switch == 1:
-        channel_period = int(1000 / notes_period[key_note] + switch * 1000)
+    if exp_group == 1:
+        channel_period = int(1000 / freq_map[key_note] + exp_group * 1000)
         ser.write((str(channel_period) + '\n').encode())
     
 
@@ -398,12 +398,12 @@ def play_note_fixed(note, is_black, idx):
     snd.play()
     key_note = note[:-1]
     
-    if switch == 1:
-        send_period(int(1000 / notes_period[key_note] + switch * 1000))
+    if exp_group == 1:
+        send_period(int(1000 / freq_map[key_note] + exp_group * 1000))
         
     time.sleep(1)
     snd.stop()
-    if switch == 1:
+    if exp_group == 1:
         send_period(0)
     (active_blacks if is_black else active_whites).remove(idx)
 
@@ -424,7 +424,7 @@ def draw_piano():
     label = font.render(f"Mode {sound_mode}: C4~B5 훈련", True, (0, 0, 0))
     screen.blit(label, (20, 20))
 
-# 메인 루프
+# 메인 루프 ---------------------------------------------------------------------------------------------
 run = True
 pressed_keys = {}
 
@@ -450,7 +450,7 @@ while run:
 
                     snd.play(-1)
 
-                    if switch == 1:
+                    if exp_group == 1:
                         send_period(key_note)
 
                     (active_blacks if is_black else active_whites).append(idx)
@@ -465,7 +465,7 @@ while run:
 
                     snd.play(-1)
 
-                    if switch == 1:
+                    if exp_group == 1:
                         send_period(key_note)
                         
                     (active_blacks if is_black else active_whites).append(idx)
@@ -481,7 +481,7 @@ while run:
                         time.sleep(1)
                         if k in pressed_keys and not pressed_keys[k]['stopped']:
                             pressed_keys[k]['sound'].stop()
-                            if switch == 1:
+                            if exp_group == 1:
                                 send_period(0)
                             idx_ = pressed_keys[k]['idx']
                             if pressed_keys[k]['is_black']:
@@ -507,7 +507,7 @@ while run:
                 # 이미 1초 스레드에서 처리한 경우: 아무것도 하지 않음
                 if not info.get('stopped', False):
                     info['sound'].stop()
-                    if switch == 1:
+                    if exp_group == 1:
                         send_period(0)
                     idx = info['idx']
                     if info['is_black']:
