@@ -17,7 +17,7 @@ key_map = {
     'e': 'F4', '4': 'Gb4', 'r': 'G4', '5': 'Ab4', 't': 'A4',
     '6': 'Bb4', 'y': 'B4', 'u': 'C5', '8': 'Db5', 'i': 'D5',
     '9': 'Eb5', 'o': 'E5', 'p': 'F5', '-': 'Gb5', '[': 'G5',
-    '=': 'Ab5', ']': 'A5', '\\': 'Bb5', 'backspace': 'B5'
+    '=': 'Ab5', ']': 'A5', 'backspace': 'Bb5', '\\  ': 'B5'
 }
 
 
@@ -40,14 +40,15 @@ def run_piano_training(training_time, sound_mode, exp_group):
         'F':8, 'Gb':4, 'G':8, 'Ab':15, 'A':25, 'Bb':40, 'B':55
     }
 
+    pygame.init()
+    mixer.set_num_channels(64)
+
     # 화이트/블랙 건반 음계에 해당하는 사운드 파일(.wav) 불러오기
     white_sounds = [mixer.Sound(f'assets\\notes\\{n}.wav') for n in white_notes]
     black_sounds = [mixer.Sound(f'assets\\notes\\{n}.wav') for n in black_notes]
 
 
     # pygame 모듈 초기화 및 화면 초기 세팅
-    pygame.init()
-    mixer.set_num_channels(64)
     WIDTH, HEIGHT = len(white_notes) * 40, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("C4–B5 Piano Training")
@@ -213,3 +214,87 @@ def run_piano_training(training_time, sound_mode, exp_group):
                     del pressed_keys[key]
 
     pygame.quit()
+
+
+
+def train_instruction_ui(screen, font, white_notes, black_notes, key_map,
+                          draw_piano, sound_mode, ser, send_period,
+                          white_sounds, black_sounds):
+    import pygame
+    import time
+
+    instruction_list = [
+        {
+            "text": "1) C major scale을 천천히 한 음씩 눌러보세요. (C4~C5)",
+            "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
+            "timeout": None
+        },
+        {
+            "text": "2) 도부터 시까지 위로 갔다가 아래로 눌러보세요. (검은건반 포함)",
+            "notes_required": [
+                'C4', 'Db4', 'D4', 'Eb4', 'E4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'B4', 'C5',
+                'B4', 'Bb4', 'A4', 'Ab4', 'G4', 'Gb4', 'F4', 'E4', 'Eb4', 'D4', 'Db4', 'C4'
+            ],
+            "timeout": None
+        },
+        {
+            "text": "3) 도 미 솔을 눌러보세요. (C4, E4, G4)",
+            "notes_required": ['C4', 'E4', 'G4'],
+            "timeout": None
+        },
+        {
+            "text": "4) 기억에 남는 자극이 있는 음을 다시 눌러보세요. (30초 자유 탐색)",
+            "notes_required": None,
+            "timeout": 30
+        },
+        {
+            "text": "5) 자신만의 3음 패턴을 만들어 반복해보세요. (30초 자유 탐색)",
+            "notes_required": None,
+            "timeout": 30
+        }
+    ]
+
+    pressed_notes = set()
+    clock = pygame.time.Clock()
+
+    for inst in instruction_list:
+        running = True
+        start_time = time.time()
+        pressed_notes.clear()
+
+        while running:
+            draw_piano()
+            inst_surface = font.render(inst["text"], True, (0, 0, 0))
+            screen.blit(inst_surface, (20, 450))
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
+                elif event.type == pygame.KEYDOWN:
+                    key = pygame.key.name(event.key).lower()
+                    if key in key_map:
+                        note = key_map[key]
+                        pressed_notes.add(note)
+                        is_black = note in black_notes
+                        idx = (black_notes if is_black else white_notes).index(note)
+                        snd = black_sounds[idx] if is_black else white_sounds[idx]
+                        snd.play()
+                        if ser:
+                            note_char = note[:-1]
+                            send_period(note_char)
+
+            if inst["notes_required"]:
+                if set(inst["notes_required"]).issubset(pressed_notes):
+                    running = False
+            elif inst["timeout"]:
+                if time.time() - start_time >= inst["timeout"]:
+                    running = False
+
+            clock.tick(30)
+
+    draw_piano()
+    done_text = font.render("\ud83c\udf89 모든 instruction 훈련이 완료되었습니다!", True, (0, 0, 0))
+    screen.blit(done_text, (20, 500))
+    pygame.display.flip()
+    time.sleep(2)
