@@ -4,6 +4,7 @@ from pygame import mixer
 from utils.constants import white_notes, black_notes, key_map, freq_map
 from utils.draw import draw_piano
 from utils.serial_utils import init_serial, send_period
+import os
 
 def run_instruction_training(sound_mode, exp_group):
     ser = init_serial(exp_group)
@@ -17,11 +18,12 @@ def run_instruction_training(sound_mode, exp_group):
     WIDTH, HEIGHT = len(white_notes) * 40, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("Instruction-Based Training")
-    font = pygame.font.SysFont(None, 48)
+    font_path = os.path.join("assets", "fonts", "Pretendard-Regular.ttf")
+    font = pygame.font.Font(font_path, 20)
 
     instruction_list = [
         {
-            "text": "1) C major scale을 천천히 한 음씩 눌러보세요. (C4~C5)",
+            "text": "1) 도부터 시까지 *하얀 건반*을 천천히 한 음씩 눌러보세요.",
             "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
             "timeout": None
         },

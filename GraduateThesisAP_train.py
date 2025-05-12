@@ -2,6 +2,7 @@ import pygame
 from pygame import mixer
 import time
 import threading
+import os
 
 from utils.constants import white_notes, black_notes, key_map, freq_map
 from utils.serial_utils import init_serial, send_period
@@ -22,7 +23,8 @@ def run_piano_training(training_time, sound_mode, exp_group):
     WIDTH, HEIGHT = len(white_notes) * 40, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("C4–B5 Piano Training")
-    font = pygame.font.SysFont(None, 48)
+    font_path = os.path.join("assets", "fonts", "Pretendard-Regular.ttf")
+    font = pygame.font.Font(font_path, 20)
 
     active_whites, active_blacks = [], []
     pressed_keys = {}
@@ -39,7 +41,7 @@ def run_piano_training(training_time, sound_mode, exp_group):
 
     start_time = time.time()
     while time.time() - start_time < training_time:
-        draw_piano(screen, font, white_notes, black_notes, active_whites, active_blacks, label=f"Mode {sound_mode}: C4~B5 훈련")
+        draw_piano(screen, font, white_notes, black_notes, active_whites, active_blacks, label=f"Mode {sound_mode} 자유롭게 건반을 눌러보며, 자극을 느껴보세요")
         pygame.display.flip()
 
         for event in pygame.event.get():

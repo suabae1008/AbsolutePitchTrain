@@ -12,11 +12,11 @@ def main():
 
     # 사전 테스트
     print("\n📌 1단계: Note Identification Test (Before)")
-    run_note_identification_test(num_questions=5, sub=sub)
+    run_note_identification_test(num_questions=1, sub=sub, test_mode="baseline")
 
     # 자유 훈련 (1차)
     print("\n🎹 2단계: 자유 훈련 (1차)")
-    run_piano_training(training_time=60, sound_mode=sound_mode, exp_group=exp_group)
+    run_piano_training(training_time=5, sound_mode=sound_mode, exp_group=exp_group)
 
     # instruction 기반 훈련
     print("\n🧠 3단계: Instruction 기반 훈련")
@@ -24,11 +24,11 @@ def main():
 
     # 자유 훈련 (2차)
     print("\n🎹 4단계: 자유 훈련 (2차)")
-    run_piano_training(training_time=60, sound_mode=sound_mode, exp_group=exp_group)
+    run_piano_training(training_time=10, sound_mode=sound_mode, exp_group=exp_group)
 
     # 사후 테스트
     print("\n✅ 5단계: Note Identification Test (After)")
-    run_note_identification_test(num_questions=5, sub=sub)
+    run_note_identification_test(num_questions=5, sub=sub,  test_mode="after")
 
     print("\n🎉 실험 완료! 수고하셨습니다.")
 

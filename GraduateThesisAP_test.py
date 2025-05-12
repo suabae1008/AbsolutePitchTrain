@@ -7,9 +7,7 @@ from utils.constants import white_notes, black_notes, key_map
 import os
 from openpyxl import load_workbook
 
-def run_note_identification_test(num_questions, sub):
-    test_mode = input("TEST MODE (baseline/after/1day): ")
-
+def run_note_identification_test(num_questions, sub, test_mode):
     pygame.init()
     mixer.init()
     mixer.set_num_channels(64)
@@ -17,7 +15,8 @@ def run_note_identification_test(num_questions, sub):
     WIDTH, HEIGHT = 800, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("Note Identification Test")
-    font = pygame.font.SysFont(None, 48)
+    font_path = os.path.join("assets", "fonts", "Pretendard-Regular.ttf")
+    font = pygame.font.Font(font_path, 20)
 
     # 음원 로딩
     white_sounds = [mixer.Sound(f"assets/notes/{n}.wav") for n in white_notes]
