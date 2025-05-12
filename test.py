@@ -4,13 +4,19 @@ import time
 import pandas as pd
 from pygame import mixer
 from utils.constants import white_notes_test, black_notes_test, key_map, freq_map
-from utils.serial_utils import init_serial, send_period
+from utils.serial_utils import send_period
 import os
 from openpyxl import load_workbook
 
-def run_note_identification_test(num_questions, sub, test_mode, with_stim=False, exp_group=0):
-    # 자극을 주는 조건이면 ser 초기화
-    ser = init_serial(exp_group) if with_stim else None
+def run_note_identification_test(num_questions, sub, mode, ser=None):
+    """
+    mode: 'test' or 'validation'
+    - 'test': auditory only
+    - 'validation': exp_group==1이면 auditory + tactile, exp_group==0이면 auditory only
+    ser: serial object if stimulation is available (only for group 1)
+    """
+
+    give_stim = (mode == "validation" and ser is not None)
 
     pygame.init()
     mixer.init()
@@ -64,19 +70,24 @@ def run_note_identification_test(num_questions, sub, test_mode, with_stim=False,
         clock.tick(30)
 
         current_note = target_notes[idx]
-        snd = white_sounds[white_notes_test.index(current_note)] if current_note in white_notes_test else black_sounds[black_notes_test.index(current_note)]
-        snd.play()
+        snd = (
+            white_sounds[white_notes_test.index(current_note)]
+            if current_note in white_notes_test
+            else black_sounds[black_notes_test.index(current_note)]
+        )
 
-        # 자극 포함 여부
         key_note = current_note[:-1]  # e.g., C4 → C
-        if ser:
-            send_period(ser, freq_map, key_note, exp_group)
-        time.sleep(1)
-        snd.stop()
-        if ser:
-            send_period(ser, freq_map, '0', exp_group)
 
-        # 응답 대기
+        snd.play()
+        if give_stim:
+            send_period(ser, freq_map, key_note, exp_group=1)
+
+        time.sleep(1)  # 자극 및 소리 지속 시간
+
+        if give_stim:
+            send_period(ser, freq_map, '0', exp_group=1)
+
+        # 응답 대기 (소리 끝나고 나서!)
         waiting_input = True
         input_start = time.time()
         while waiting_input and (time.time() - input_start) < 5:
@@ -88,8 +99,8 @@ def run_note_identification_test(num_questions, sub, test_mode, with_stim=False,
                     key = pygame.key.name(event.key).lower()
                     if key in key_map:
                         guessed_note = key_map[key]
-                        participant_answers.append(guessed_note[:-1])  # 옥타브 제거
-                        correct_answers.append(current_note[:-1])      # 옥타브 제거
+                        participant_answers.append(guessed_note[:-1])
+                        correct_answers.append(current_note[:-1])
                         print(f"User answered: {guessed_note}")
                         waiting_input = False
                         idx += 1
@@ -110,7 +121,7 @@ def run_note_identification_test(num_questions, sub, test_mode, with_stim=False,
     df = pd.DataFrame(data)
 
     result_file = r"C:/Users/User/Desktop/SKKU/2025-1/졸업 논문 작성/result.xlsx"
-    sheet_name = f"{test_mode}_{sub}"
+    sheet_name = f"{mode}_{sub}"
 
     if not os.path.exists(result_file):
         with pd.ExcelWriter(result_file, engine="openpyxl") as writer:
