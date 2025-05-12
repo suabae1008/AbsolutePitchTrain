@@ -34,7 +34,7 @@ def main():
 
     # 자유 훈련 (1차)
     print("\n🎹 2단계: 자유 훈련")
-    run_piano_training(training_time=10, sound_mode=2, ser=ser)
+    run_piano_training(training_time=60, sound_mode=2, ser=ser)
 
     # 지침 훈련
     print("\n🧠 3단계: 지침 훈련")
@@ -45,7 +45,7 @@ def main():
 
     # 자유 훈련 (2차)
     print("\n🎹 4단계: 자유 훈련")
-    run_piano_training(training_time=10, sound_mode=2, ser=ser)
+    run_piano_training(training_time=60, sound_mode=2, ser=ser)
 
     # 🧘 10분 휴식
     print("\n⏸ 10분간 휴식입니다. 편하게 쉬고 오세요!")

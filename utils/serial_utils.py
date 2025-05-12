@@ -29,7 +29,7 @@ def init_serial(exp_group):
 def send_period(ser, freq_map, key_note, exp_group):
     if ser:
         try:
-            period = round(1000 / freq_map[key_note] + exp_group * 1000) if key_note != '0' else exp_group * 1000
+            period = int(1000 / freq_map[key_note] + exp_group * 1000) if key_note != '0' else exp_group * 1000
             ser.write((str(period) + '\n').encode())
             print(f"✅ Sent period {period} for note '{key_note}' to Arduino")
         except Exception as e:

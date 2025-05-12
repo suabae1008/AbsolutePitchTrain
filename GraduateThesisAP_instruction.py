@@ -147,7 +147,7 @@ def run_instruction_training(sound_mode, ser=None):
     instruction_list = [
         {
             "text": "1) 도부터 시까지 하얀 건반을 천천히 한 음씩 눌러보며 자극을 기억해보세요.",
-            "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
+            "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'],
             "timeout": None
         },
         {
