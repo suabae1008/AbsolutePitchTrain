@@ -1,25 +1,22 @@
 import pygame
 from pygame import mixer
 import time
-import threading
 import os
 
 from utils.constants import white_notes, black_notes, key_map, freq_map
 from utils.serial_utils import init_serial, send_period
 from utils.draw import draw_piano
+from utils.sound import play_note_by_mode
 
 def run_piano_training(training_time, sound_mode, exp_group):
-    # 아두이노 설정
     ser = init_serial(exp_group)
 
     pygame.init()
     mixer.set_num_channels(64)
 
-    # 사운드 로드
-    white_sounds = [mixer.Sound(f'assets\\notes\\{n}.wav') for n in white_notes]
-    black_sounds = [mixer.Sound(f'assets\\notes\\{n}.wav') for n in black_notes]
+    white_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in white_notes]
+    black_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in black_notes]
 
-    # UI 초기화
     WIDTH, HEIGHT = len(white_notes) * 40, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("C4–B5 Piano Training")
@@ -29,19 +26,10 @@ def run_piano_training(training_time, sound_mode, exp_group):
     active_whites, active_blacks = [], []
     pressed_keys = {}
 
-    def play_note_fixed(note, is_black, idx):
-        snd = black_sounds[idx] if is_black else white_sounds[idx]
-        snd.play()
-        key_note = note[:-1]
-        send_period(ser, freq_map, key_note, exp_group)
-        time.sleep(1)
-        snd.stop()
-        send_period(ser, freq_map, '0', exp_group)
-        (active_blacks if is_black else active_whites).remove(idx)
-
     start_time = time.time()
     while time.time() - start_time < training_time:
-        draw_piano(screen, font, white_notes, black_notes, active_whites, active_blacks, label=f"Mode {sound_mode} 자유롭게 건반을 눌러보며, 자극을 느껴보세요")
+        draw_piano(screen, font, white_notes, black_notes, active_whites, active_blacks,
+                   label=f"Mode {sound_mode} 자유롭게 건반을 눌러보며, 자극을 느껴보세요")
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -54,46 +42,21 @@ def run_piano_training(training_time, sound_mode, exp_group):
                     note = key_map[key]
                     is_black = note in black_notes
                     idx = (black_notes if is_black else white_notes).index(note)
-                    snd = black_sounds[idx] if is_black else white_sounds[idx]
-                    key_note = note[:-1]
 
-                    if sound_mode == 1:
-                        snd.play(-1)
-                        send_period(ser, freq_map, key_note, exp_group)
-                        (active_blacks if is_black else active_whites).append(idx)
+                    (active_blacks if is_black else active_whites).append(idx)
+
+                    # 모드별 재생 및 자극 전달
+                    play_note_by_mode(note, is_black, sound_mode, ser, freq_map, exp_group,
+                                      white_sounds, black_sounds)
+
+                    # 누르고 있는 키 상태 저장 (모드 1, 2에서 떼야 멈춤)
+                    if sound_mode in [1, 2]:
                         pressed_keys[key] = {
-                            'sound': snd, 'note': note,
-                            'start_time': time.time(), 'idx': idx, 'is_black': is_black
+                            'idx': idx,
+                            'is_black': is_black,
+                            'stopped': False,
+                            'sound': black_sounds[idx] if is_black else white_sounds[idx]
                         }
-
-                    elif sound_mode == 2:
-                        snd.play(-1)
-                        send_period(ser, freq_map, key_note, exp_group)
-                        (active_blacks if is_black else active_whites).append(idx)
-                        pressed_keys[key] = {
-                            'sound': snd, 'note': note,
-                            'start_time': time.time(), 'idx': idx,
-                            'is_black': is_black, 'stopped': False
-                        }
-
-                        def stop_after_1s(k=key):
-                            time.sleep(1)
-                            if k in pressed_keys and not pressed_keys[k]['stopped']:
-                                pressed_keys[k]['sound'].stop()
-                                send_period(ser, freq_map, '0', exp_group)
-                                idx_ = pressed_keys[k]['idx']
-                                if pressed_keys[k]['is_black']:
-                                    if idx_ in active_blacks: active_blacks.remove(idx_)
-                                else:
-                                    if idx_ in active_whites: active_whites.remove(idx_)
-                                pressed_keys[k]['stopped'] = True
-                                del pressed_keys[k]
-
-                        threading.Thread(target=stop_after_1s).start()
-
-                    elif sound_mode == 3:
-                        (active_blacks if is_black else active_whites).append(idx)
-                        threading.Thread(target=play_note_fixed, args=(note, is_black, idx)).start()
 
             elif event.type == pygame.KEYUP:
                 key = pygame.key.name(event.key).lower()
