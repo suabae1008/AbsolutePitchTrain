@@ -25,35 +25,38 @@ def run_instruction_training(sound_mode, exp_group):
     font = pygame.font.Font(font_path, 20)
 
     instruction_list = [
-        {
-            "text": "1) 도부터 시까지 *하얀 건반*을 천천히 한 음씩 눌러보세요.",
-            "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
-            "timeout": None
-        },
-        {
-            "text": "2) 도부터 시까지 위로 갔다가 아래로 눌러보세요. (검은건반 포함)",
-            "notes_required": [
-                'C4', 'Db4', 'D4', 'Eb4', 'E4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'B4', 'C5',
-                'B4', 'Bb4', 'A4', 'Ab4', 'G4', 'Gb4', 'F4', 'E4', 'Eb4', 'D4', 'Db4', 'C4'
-            ],
-            "timeout": None
-        },
-        {
-            "text": "3) 도 미 솔을 눌러보세요. (C4, E4, G4)",
-            "notes_required": ['C4', 'E4', 'G4'],
-            "timeout": None
-        },
-        {
-            "text": "4) 기억에 남는 자극이 있는 음을 다시 눌러보세요. (30초 자유 탐색)",
-            "notes_required": None,
-            "timeout": 30
-        },
-        {
-            "text": "5) 자신만의 3음 패턴을 만들어 반복해보세요. (30초 자유 탐색)",
-            "notes_required": None,
-            "timeout": 30
-        }
-    ]
+    {
+        "text": "1) 도부터 시까지 하얀 건반을 천천히 한 음씩 눌러보며 자극을 기억해보세요.",
+        "notes_required": ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
+        "timeout": None
+    },
+    {
+        "text": "2) 익숙하지 않은 검은 건반들도 눌러보며 자극을 비교해보세요.",
+        "notes_required": ['Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4'],
+        "timeout": None
+    },
+    {
+        "text": "3) 도–미–솔을 순서대로 눌러보세요. (C4, E4, G4)",
+        "notes_required": ['C4', 'E4', 'G4'],
+        "timeout": None
+    },
+    {
+        "text": "4) 레–파–라를 순서대로 눌러보세요. (D4, F4, A4)",
+        "notes_required": ['D4', 'F4', 'A4'],
+        "timeout": None
+    },
+    {
+        "text": "5) 미–솔–시를 순서대로 눌러보세요. (E4, G4, B4)",
+        "notes_required": ['E4', 'G4', 'B4'],
+        "timeout": None
+    },
+    {
+        "text": "6) 기억에 남는 자극이 있는 음을 다시 눌러보세요. (30초 자유 탐색)",
+        "notes_required": None,
+        "timeout": 30
+    }
+    ]   
+
 
     clock = pygame.time.Clock()
     for inst in instruction_list:
