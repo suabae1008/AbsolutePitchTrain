@@ -137,7 +137,7 @@ def run_instruction_training(sound_mode, ser=None):
     white_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in white_notes]
     black_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in black_notes]
 
-    WIDTH, HEIGHT = len(white_notes) * 40, 600
+    WIDTH, HEIGHT = 1000, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("Instruction-Based Training")
 
@@ -185,10 +185,16 @@ def run_instruction_training(sound_mode, ser=None):
 
         while running:
             screen.fill('white')
+            
+            # 안내 문구 (상단)
+            mode_text = font.render("[지침 훈련] 화면의 안내에 따라 건반을 눌러보세요", True, (0, 0, 0))
+            mode_rect = mode_text.get_rect(midtop=(WIDTH // 2, 60))
+            screen.blit(mode_text, mode_rect)
+
+            # 지시 문장 (본문)
             instruction_text = font.render(inst['text'], True, (0, 0, 0))
-            mode_text = font.render("Instruction Mode (키보드에 출력된 피아노를 보고 입력하세요)", True, (0, 0, 0))
-            screen.blit(mode_text, (40, 40))
-            screen.blit(instruction_text, (40, 100))
+            instruction_rect = instruction_text.get_rect(midtop=(WIDTH // 2, 120))
+            screen.blit(instruction_text, instruction_rect)
             pygame.display.flip()
 
             for event in pygame.event.get():

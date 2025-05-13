@@ -22,7 +22,7 @@ def run_note_identification_test(num_questions, sub, mode, ser=None):
     mixer.init()
     mixer.set_num_channels(64)
 
-    WIDTH, HEIGHT = 800, 600
+    WIDTH, HEIGHT = 1000, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("Note Identification Test")
     font_path = os.path.join("assets", "fonts", "Pretendard-Regular.ttf")
@@ -47,8 +47,9 @@ def run_note_identification_test(num_questions, sub, mode, ser=None):
 
     # 시작 전 대기
     screen.fill('white')
-    label = font.render("Press ENTER to start the test", True, (0, 0, 0))
-    screen.blit(label, (WIDTH // 2 - 200, HEIGHT // 2))
+    label = font.render("테스트를 시작하려면 ENTER 키를 눌러주세요", True, (0, 0, 0))
+    label_rect = label.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(label, label_rect)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -63,9 +64,14 @@ def run_note_identification_test(num_questions, sub, mode, ser=None):
     run = True
     while run and idx < num_questions:
         screen.fill('white')
+        # 텍스트 중앙 정렬
         label = font.render(f"Question {idx + 1} / {num_questions}", True, (0, 0, 0))
-        screen.blit(label, (WIDTH // 2 - 120, 50))
-        screen.blit(speaker_img, (WIDTH // 2 - 100, HEIGHT // 2 - 100))
+        label_rect = label.get_rect(midtop=(WIDTH // 2, 60))
+        screen.blit(label, label_rect)
+
+        # 이미지 중앙 정렬
+        speaker_rect = speaker_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+        screen.blit(speaker_img, speaker_rect)
         pygame.display.flip()
         clock.tick(30)
 

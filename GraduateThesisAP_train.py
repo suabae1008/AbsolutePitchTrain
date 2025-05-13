@@ -97,9 +97,9 @@ def run_piano_training(training_time, sound_mode, ser=None):
     white_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in white_notes]
     black_sounds = [mixer.Sound(f'assets/notes/{n}.wav') for n in black_notes]
 
-    WIDTH, HEIGHT = len(white_notes) * 40, 600
+    WIDTH, HEIGHT = 1000, 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
-    pygame.display.set_caption("C4–B5 Piano Training")
+    pygame.display.set_caption("Piano Free Training (Ocatave 4)")
     font_path = os.path.join("assets", "fonts", "Pretendard-Regular.ttf")
     font = pygame.font.Font(font_path, 20)
 
@@ -109,8 +109,9 @@ def run_piano_training(training_time, sound_mode, ser=None):
     start_time = time.time()
     while time.time() - start_time < training_time:
         screen.fill('white')
-        label = font.render(f"Mode {sound_mode} - 자유 훈련 중 (키보드에 출력된 건반으로 입력하세요)", True, (0, 0, 0))
-        screen.blit(label, (50, 250))
+        label = font.render(f"[자유 훈련] 원하는 건반을 눌러 자극을 익혀보세요", True, (0, 0, 0))
+        label_rect = label.get_rect(center=(WIDTH // 2, 180))  # x: 중앙, y: 고정
+        screen.blit(label, label_rect)
         pygame.display.flip()
 
         for event in pygame.event.get():

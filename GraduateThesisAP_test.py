@@ -40,8 +40,9 @@ def run_note_identification_test(num_questions, sub, test_mode):
 
     # 시작 대기
     screen.fill('white')
-    label = font.render("Press ENTER to start the test", True, (0, 0, 0))
-    screen.blit(label, (WIDTH // 2 - 200, HEIGHT // 2))
+    label = font.render("테스트를 시작하려면 ENTER 키를 눌러주세요", True, (0, 0, 0))
+    label_rect = label.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(label, label_rect)
     pygame.display.flip()
     waiting = True
     while waiting:
