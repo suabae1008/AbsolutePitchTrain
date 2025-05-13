@@ -1,7 +1,7 @@
 # from GraduateThesisAP_test import run_note_identification_test
 from test import run_note_identification_test
-from GraduateThesisAP_train import run_piano_training
-from GraduateThesisAP_instruction import run_instruction_training
+from train_free import run_piano_training
+from train_inst import run_instruction_training
 from utils.serial_utils import init_serial, send_period
 
 
@@ -15,8 +15,8 @@ def main():
     sound_mode = int(input("SOUND MODE (1=hold, 2=hold_max_1s, 3=fixed_1s): "))
     '''
 
-    sub = "BSA_DEMO_arduino"
-    exp_group = 0
+    sub = "prof_DEMO_arduino"
+    exp_group = 1
     sound_mode = 2
 
     # 호출부
@@ -26,7 +26,7 @@ def main():
     # 사전 음계 테스트
     print("\n📌 1단계: 사전 음계 테스트")
     run_note_identification_test(
-        num_questions=1,
+        num_questions=3,
         sub=sub,
         mode="test",        # 순수 청각 테스트
         ser=None           
@@ -34,7 +34,7 @@ def main():
 
     # 자유 훈련 (1차)
     print("\n🎹 2단계: 자유 훈련")
-    run_piano_training(training_time=10, sound_mode=2, ser=ser)
+    run_piano_training(training_time=60, sound_mode=2, ser=ser)
 
     # 지침 훈련
     print("\n🧠 3단계: 지침 훈련")
@@ -47,8 +47,8 @@ def main():
     print("\n🎹 4단계: 자유 훈련")
     run_piano_training(training_time=60, sound_mode=2, ser=ser)
 
-    # 🧘 10분 휴식
-    print("\n⏸ 10분간 휴식입니다. 편하게 쉬고 오세요!")
+    # 🧘 5분 휴식
+    print("\n⏸ 5분간 휴식입니다. 편하게 쉬고 오세요!")
     print("💡 다시 시작할 준비가 되면 ENTER 키를 눌러주세요.")
     input("▶ ENTER를 눌러 다음 단계로 진행: ")
 
