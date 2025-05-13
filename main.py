@@ -16,7 +16,7 @@ def main():
     '''
 
     sub = "BSA_DEMO_arduino"
-    exp_group = 1
+    exp_group = 0
     sound_mode = 2
 
     # 호출부
@@ -34,7 +34,7 @@ def main():
 
     # 자유 훈련 (1차)
     print("\n🎹 2단계: 자유 훈련")
-    run_piano_training(training_time=60, sound_mode=2, ser=ser)
+    run_piano_training(training_time=10, sound_mode=2, ser=ser)
 
     # 지침 훈련
     print("\n🧠 3단계: 지침 훈련")
