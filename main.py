@@ -29,7 +29,7 @@ def main():
         num_questions=3,
         sub=sub,
         mode="test",        # 순수 청각 테스트
-        ser=None           
+        ser=None                                
     )
 
     # 자유 훈련 (1차)

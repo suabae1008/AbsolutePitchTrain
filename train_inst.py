@@ -177,6 +177,7 @@ def run_instruction_training(sound_mode, ser=None):
         }
     ]
 
+    pressed_keys = {}  # ✅ 자극 관리용
     clock = pygame.time.Clock()
     for inst in instruction_list:
         pressed_notes = set()
@@ -204,24 +205,40 @@ def run_instruction_training(sound_mode, ser=None):
 
                 elif event.type == pygame.KEYDOWN:
                     key = pygame.key.name(event.key).lower()
+
                     if key in key_map:
                         note = key_map[key]
                         pressed_notes.add(note)
                         is_black = note in black_notes
 
+                        idx = (black_notes if is_black else white_notes).index(note)
+                        snd = black_sounds[idx] if is_black else white_sounds[idx]
+
+                        if sound_mode in [1, 2]:
+                            pressed_keys[key] = {
+                                'idx': idx,
+                                'is_black': is_black,
+                                'canceled': False,
+                                'stopped': False,
+                                'sound': snd
+                            }
+
                         play_note_by_mode(note, is_black, sound_mode, ser, freq_map, exp_group,
-                                          white_sounds, black_sounds)
+                                          white_sounds, black_sounds, pressed_keys, key)
 
                 elif event.type == pygame.KEYUP:
                     key = pygame.key.name(event.key).lower()
-                    if key in key_map:
-                        note = key_map[key]
-                        is_black = note in black_notes
-                        idx = (black_notes if is_black else white_notes).index(note)
-                        snd = black_sounds[idx] if is_black else white_sounds[idx]
-                        snd.stop()
-                        if ser:
-                            send_period(ser, freq_map, '0', exp_group)
+                    if key in pressed_keys:
+                        info = pressed_keys[key]
+                        info["canceled"] = True
+
+                        if not info.get('stopped', False):
+                            info['sound'].stop()
+                            if ser:
+                                send_period(ser, freq_map, '0', exp_group)
+                            info['stopped'] = True
+
+                        del pressed_keys[key]
 
             if inst['notes_required']:
                 if set(inst['notes_required']).issubset(pressed_notes):

@@ -127,22 +127,34 @@ def run_piano_training(training_time, sound_mode, ser=None):
 
                     (active_blacks if is_black else active_whites).append(idx)
 
-                    # 모드별 재생 및 자극 전달
-                    play_note_by_mode(note, is_black, sound_mode, ser, freq_map, exp_group,
-                                      white_sounds, black_sounds)
-
                     if sound_mode in [1, 2]:
                         pressed_keys[key] = {
                             'idx': idx,
                             'is_black': is_black,
+                            'canceled': False,
                             'stopped': False,
                             'sound': black_sounds[idx] if is_black else white_sounds[idx]
                         }
 
+
+                    # 모드별 재생 및 자극 전달
+                    # play_note_by_mode(note, is_black, sound_mode, ser, freq_map, exp_group,
+                    #                   white_sounds, black_sounds)
+                    
+                    # 모드별 재생 및 자극 전달 (pressed key 추가)
+                    play_note_by_mode(note, is_black, sound_mode, ser, freq_map, exp_group,
+                                      white_sounds, black_sounds, pressed_keys, key)                   
+
+
+                    
+
             elif event.type == pygame.KEYUP:
                 key = pygame.key.name(event.key).lower()
                 if key in pressed_keys:
+
                     info = pressed_keys[key]
+                    info["canceled"] = True  # ✅ 타이머 무효화
+
                     if not info.get('stopped', False):
                         info['sound'].stop()
                         if ser:
